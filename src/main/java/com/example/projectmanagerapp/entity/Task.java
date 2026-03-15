@@ -25,7 +25,6 @@ public class Task {
     @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
-    // ZMIANA: Tutaj zmieniliśmy 'User' na 'Users'
     @ManyToOne
     @JoinColumn(name = "owner_id")
     private Users owner;
