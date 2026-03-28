@@ -6,6 +6,18 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ GET  http://localhost:8080/api/tasks   - Pobiera wszystkie zadania
+ POST http://localhost:8080/api/tasks   - Tworzy nowe zadanie
+ {
+ "title": "Zaimplementować logowanie",
+ "description": "Dodać Spring Security i JWT",
+ "status": "IN_PROGRESS",
+ "priority": 1,
+ "dueDate": "2026-04-15T12:00:00"
+ }
+ */
+
 @RestController
 @RequestMapping("/api/tasks")
 public class TaskController {

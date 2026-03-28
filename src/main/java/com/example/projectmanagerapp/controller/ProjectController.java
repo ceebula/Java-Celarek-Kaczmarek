@@ -6,6 +6,17 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**Kontroler zarządzający projektami w systemie.
+ GET  http://localhost:8080/api/projects   - Pobiera listę wszystkich projektów
+ POST http://localhost:8080/api/projects   - Tworzy nowy projekt
+ {
+ "name": "System Symulacji Ewolucyjnej",
+ "description": "Projekt zaliczeniowy z Programowania Obiektowego",
+ "startDate": "2026-03-01",
+ "status": "ACTIVE"
+ }
+ */
+
 @RestController
 @RequestMapping("/api/projects")
 public class ProjectController {

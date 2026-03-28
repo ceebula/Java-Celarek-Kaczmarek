@@ -6,6 +6,18 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ Kontroler zarządzający użytkownikami systemu.
+http://localhost:8080/api/users
+ GET /api/users- Pobiera listę wszystkich użytkowników.
+ POST /api/users - Tworzy nowego użytkownika.
+ {
+ "username": "jan_kowalski",
+ "email": "jan@example.com",
+ "password": "securePassword123"
+ }
+ */
+
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
