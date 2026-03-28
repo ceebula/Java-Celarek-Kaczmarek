@@ -1,7 +1,7 @@
 package com.example.projectmanagerapp.controller;
 
 import com.example.projectmanagerapp.entity.Task;
-import com.example.projectmanagerapp.repository.TaskRepository;
+import com.example.projectmanagerapp.service.TaskService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,19 +22,19 @@ import java.util.List;
 @RequestMapping("/api/tasks")
 public class TaskController {
 
-    private final TaskRepository taskRepository;
+    private final TaskService taskService;
 
-    public TaskController(TaskRepository taskRepository) {
-        this.taskRepository = taskRepository;
+    public TaskController(TaskService taskService) {
+        this.taskService = taskService;
     }
 
     @GetMapping
     public List<Task> getAllTasks() {
-        return taskRepository.findAll();
+        return taskService.getAllTasks();
     }
 
     @PostMapping
     public Task createTask(@RequestBody Task task) {
-        return taskRepository.save(task);
+        return taskService.createTask(task);
     }
 }
