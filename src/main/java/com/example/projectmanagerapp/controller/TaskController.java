@@ -2,6 +2,9 @@ package com.example.projectmanagerapp.controller;
 
 import com.example.projectmanagerapp.entity.Task;
 import com.example.projectmanagerapp.service.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +23,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/tasks")
+@Tag(name = "Tasks", description = "Operations for managing tasks")
 public class TaskController {
 
     private final TaskService taskService;
@@ -29,27 +33,31 @@ public class TaskController {
     }
 
     @GetMapping
+    @Operation(summary = "Get all tasks", description = "Returns a list of all tasks")
     public List<Task> getAllTasks() {
         return taskService.getAllTasks();
     }
 
     @GetMapping("/{id}")
-    public Task getTaskById(@PathVariable Long id) {
-        return taskService.getTaskById(id)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+    @Operation(summary = "Get task by id", description = "Returns task data for the given id")
+    public Task getTaskById(@Parameter(description = "Task ID") @PathVariable Long id) {
+        return taskService.getTaskById(id);
     }
 
     @PutMapping("/{id}")
-    public Task updateTask(@PathVariable Long id, @RequestBody Task task) {
+    @Operation(summary = "Update task", description = "Updates an existing task for the given id")
+    public Task updateTask(@Parameter(description = "Task ID") @PathVariable Long id, @RequestBody Task task) {
         return taskService.updateTask(id, task);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteTask(@PathVariable Long id) {
+    @Operation(summary = "Delete task", description = "Deletes a task for the given id")
+    public void deleteTask(@Parameter(description = "Task ID") @PathVariable Long id) {
         taskService.deleteTask(id);
     }
 
     @PostMapping
+    @Operation(summary = "Create task", description = "Creates a new task")
     public Task createTask(@RequestBody Task task) {
         return taskService.createTask(task);
     }
