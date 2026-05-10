@@ -1,5 +1,6 @@
 package com.example.projectmanagerapp.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,5 +25,6 @@ public class Users {
     private String username;
 
     @ManyToMany(mappedBy = "users")
+    @JsonIgnore
     private Set<Project> projects = new HashSet<>();
 }
