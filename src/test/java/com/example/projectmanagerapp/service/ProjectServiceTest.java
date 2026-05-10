@@ -1,7 +1,9 @@
 package com.example.projectmanagerapp.service;
 
 import com.example.projectmanagerapp.entity.Project;
+import com.example.projectmanagerapp.entity.Users;
 import com.example.projectmanagerapp.repository.ProjectRepository;
+import com.example.projectmanagerapp.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,12 +17,14 @@ import static org.mockito.Mockito.*;
 class ProjectServiceTest {
 
     private ProjectRepository projectRepository;
+    private UserRepository userRepository;
     private ProjectService projectService;
 
     @BeforeEach
     void setUp() {
         projectRepository = mock(ProjectRepository.class);
-        projectService = new ProjectService(projectRepository);
+        userRepository = mock(UserRepository.class);
+        projectService = new ProjectService(projectRepository, userRepository);
     }
 
     @Test
@@ -114,6 +118,58 @@ class ProjectServiceTest {
         RuntimeException exception = assertThrows(RuntimeException.class, () -> projectService.updateProject(1L, updatedProject));
         assertEquals("Project not found", exception.getMessage());
         verify(projectRepository, times(1)).findById(1L);
+        verify(projectRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should assign user to project")
+    void shouldAssignUserToProject() {
+        Project project = new Project();
+        project.setId(1L);
+
+        Users user = new Users();
+        user.setId(2L);
+        user.setUsername("TestUser");
+
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+        when(userRepository.findById(2L)).thenReturn(Optional.of(user));
+        when(projectRepository.save(project)).thenReturn(project);
+
+        Project result = projectService.assignUserToProject(1L, 2L);
+
+        assertTrue(result.getUsers().contains(user));
+        verify(projectRepository, times(1)).findById(1L);
+        verify(userRepository, times(1)).findById(2L);
+        verify(projectRepository, times(1)).save(project);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when assigning user to missing project")
+    void shouldThrowExceptionWhenAssigningUserToMissingProject() {
+        when(projectRepository.findById(1L)).thenReturn(Optional.empty());
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> projectService.assignUserToProject(1L, 2L));
+
+        assertEquals("Project not found", exception.getMessage());
+        verify(projectRepository, times(1)).findById(1L);
+        verify(userRepository, never()).findById(any());
+        verify(projectRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when assigned user does not exist")
+    void shouldThrowExceptionWhenAssignedUserDoesNotExist() {
+        Project project = new Project();
+        project.setId(1L);
+
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+        when(userRepository.findById(2L)).thenReturn(Optional.empty());
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> projectService.assignUserToProject(1L, 2L));
+
+        assertEquals("User not found", exception.getMessage());
+        verify(projectRepository, times(1)).findById(1L);
+        verify(userRepository, times(1)).findById(2L);
         verify(projectRepository, never()).save(any());
     }
 
