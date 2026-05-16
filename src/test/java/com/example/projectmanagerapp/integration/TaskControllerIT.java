@@ -1,4 +1,4 @@
-package com.example.projectmanagerapp.controller;
+package com.example.projectmanagerapp.integration;
 
 import com.example.projectmanagerapp.entity.Project;
 import com.example.projectmanagerapp.entity.Task;
@@ -10,25 +10,27 @@ import com.example.projectmanagerapp.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.andExpect(status().isOk())
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@org.springframework.test.context.ActiveProfiles("integration-test")
 class TaskControllerIT {
 
-    @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private WebApplicationContext webApplicationContext;
 
     @Autowired
     private TaskRepository taskRepository;
@@ -44,15 +46,21 @@ class TaskControllerIT {
 
     @BeforeEach
     void setUp() {
+        // Konfiguracja kontekstu MockMvc
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext).build();
+
+        // Czyszczenie baz danych w bezpiecznej kolejności relacji
         taskRepository.deleteAll();
         projectRepository.deleteAll();
         userRepository.deleteAll();
 
+        // Tworzenie użytkownika testowego
         Users user = new Users();
         user.setUsername("testuser");
         user = userRepository.save(user);
         this.userId = user.getId();
 
+        // Tworzenie projektu testowego
         Project project = new Project();
         project.setName("Test Project");
         project = projectRepository.save(project);
