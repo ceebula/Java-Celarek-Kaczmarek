@@ -14,7 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-// Importy statyczne warto trzymać w jednym bloku
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -24,8 +24,6 @@ class TaskControllerIT {
 
     private MockMvc mockMvc;
 
-    // Lepiej użyć ObjectMapper zarządzanego przez Springa, jeśli to możliwe,
-    // ale Twoje rozwiązanie z 'new' jest bezpieczne przy problemach z kontekstem.
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
@@ -34,21 +32,39 @@ class TaskControllerIT {
     @BeforeEach
     void setUp() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-        // TUTAJ: Możesz dodać czyszczenie bazy danych przez repozytoria
     }
 
-    // Dodaj faktyczny test, bo samo contextLoads() sprawdza tylko czy aplikacja startuje
     @Test
     void shouldCreateTaskSuccessfully() throws Exception {
         Long userId = createUser();
         Long projectId = createProject();
 
-        // Tutaj dopisz logikę tworzenia zadania (Task) używając userId i projectId
+        String taskJson = """
+        {
+            "title": "Zadanie Testowe",
+            "description": "Opis zadania do testu",
+            "taskType": "TASK",
+            "project": {
+                "id": %d
+            },
+            "owner": {
+                "id": %d
+            }
+        }
+        """.formatted(projectId, userId);
+
+        mockMvc.perform(post("/api/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(taskJson))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.title").value("Zadanie Testowe"))
+                .andExpect(jsonPath("$.description").value("Opis zadania do testu"))
+                .andExpect(jsonPath("$.id").exists());
     }
 
     private Long createUser() throws Exception {
         Users user = new Users();
-        user.setUsername("user_" + System.currentTimeMillis()); // Unikalny username dla każdego testu
+        user.setUsername("user_" + System.currentTimeMillis());
 
         String response = mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
